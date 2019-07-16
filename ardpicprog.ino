@@ -152,7 +152,7 @@ unsigned long lastActive = 0;
 
 void setup() {
   // Need a serial link to the host.
-  Serial.begin(9600);
+  Serial.begin(57600);
 
   // Hold the PIC in the powered down/reset state until we are ready for it.
   pinMode(PIN_MCLR, OUTPUT);
@@ -171,8 +171,7 @@ void setup() {
 
 void loop() {
 
-  if (Serial.available())
-  {
+  if (Serial.available()) {
     // Process serial input for commands from the host.
     int ch = Serial.read();
     if (ch == 0x0A || ch == 0x0D) {
@@ -504,9 +503,9 @@ void cmdRead(const char *args) {
     unsigned int word = readWord(start);
     if (count > 0) {
       if ((count % 8) == 0)
-        Serial.println();
+        s << endl;
       else
-        Serial.print(' ');
+        s << ' ' << endl;
     }
     printHex4(word);
     ++start;
@@ -524,15 +523,14 @@ void cmdRead(const char *args) {
 }
 
 // READBIN command.
-void cmdReadBinary(const char *args)
-{
+void cmdReadBinary(const char *args) {
   unsigned long start;
   unsigned long end;
   if (!parseCheckedRange(args, &start, &end)) {
     s << F("ERROR") << endl;
     return;
   }
-  Serial.println("OK");
+  s << F("OK") << endl;
   int count = 0;
   bool activity = true;
   size_t offset = 0;
@@ -686,7 +684,7 @@ void cmdWriteBinary(const char *args)
     s << F("ERROR") << endl;
     return;
   }
-  Serial.println("OK");
+  s << F("OK") << endl;
   int count = 0;
   bool activity = true;
   for (;;) {
@@ -753,8 +751,7 @@ void cmdWriteBinary(const char *args)
 const char s_noPreserve[] PROGMEM = "NOPRESERVE";
 
 // ERASE command.
-void cmdErase(const char *args)
-{
+void cmdErase(const char *args) {
   // Was the "NOPRESERVE" option given?
   int len = 0;
   while (args[len] != '\0' && args[len] != ' ' && args[len] != '\t')
@@ -842,16 +839,14 @@ void cmdErase(const char *args)
   // Forcibly write 0x3FFF over the configuration words as erase
   // sometimes won't reset the words (e.g. PIC16F628A).  If the
   // write fails, then leave the words as-is - don't report the failure.
-  for (unsigned long configAddr = configStart + DEV_CONFIG_WORD;
-       configAddr <= configEnd; ++configAddr)
+  for (unsigned long configAddr = configStart + DEV_CONFIG_WORD; configAddr <= configEnd; ++configAddr)
     writeWordForced(configAddr, configWord);
   // Done.
   s << F("OK") << endl;
 }
 
 // PWROFF command.
-void cmdPowerOff(const char *args)
-{
+void cmdPowerOff(const char *args) {
   exitProgramMode();
   s << F("OK") << endl;
 }
@@ -989,8 +984,7 @@ void processCommand(const char *buf) {
     if (!name)
       break;
     if (matchString(name, cmd, len)) {
-      commandFunc func =
-        (commandFunc)(pgm_read_word(&(commands[index].func)));
+      commandFunc func = (commandFunc)(pgm_read_word(&(commands[index].func)));
       (*func)(buf);
       return;
     }
