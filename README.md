@@ -1,1 +1,2 @@
-## Arduino sketch for turning an Arduino into a PIC programmer. 
+## Sketch for making a Microntroller PIC programmer from an Arduino development board. 
+# Works only for certain PIC devices.
